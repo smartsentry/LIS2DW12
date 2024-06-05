@@ -1,0 +1,6 @@
+[submodule "ST_INTERFACES"]
+	path = ST_INTERFACES
+	url = https://github.com/smartsentry/ST_INTERFACES.git
+[submodule "X_NUCLEO_COMMON"]
+	path = X_NUCLEO_COMMON
+	url = https://github.com/smartsentry/X_NUCLEO_COMMON.git
