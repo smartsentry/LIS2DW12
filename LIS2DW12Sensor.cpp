@@ -161,7 +161,7 @@ int LIS2DW12Sensor::enable_x(void)
     if (set_x_odr_when_enabled(_x_last_odr, _x_last_operating_mode, _x_last_noise) == 1) {
         return 1;
     }
-		printf("*********************************************************last_odr: %3.3f, last_om: %d,  last_noise:  %d\r\n", _x_last_odr, _x_last_operating_mode, _x_last_noise); 
+		printf("last_odr: %3.3f, last_om: %d,  last_noise:  %d\r\n", _x_last_odr, _x_last_operating_mode, _x_last_noise); 
     _x_is_enabled = 1;
 
     return 0;
