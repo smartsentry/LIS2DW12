@@ -120,7 +120,7 @@ int LIS2DW12Sensor::init(void *init)
     }
 
     /* Power mode selection */
-    if (lis2dw12_power_mode_set(&_reg_ctx, LIS2DW12_HIGH_PERFORMANCE) != 0) {
+    if (lis2dw12_power_mode_set(&_reg_ctx, LIS2DW12_SINGLE_LOW_PWR_2) != 0) {
         return 1;
     }
 
@@ -135,9 +135,9 @@ int LIS2DW12Sensor::init(void *init)
     }
 
     /* Select default output data rate. */
-    _x_last_odr = 100.0f;
+    _x_last_odr = 12.5f;
 
-    _x_last_operating_mode = LIS2DW12_HIGH_PERFORMANCE_MODE;
+    _x_last_operating_mode = LIS2DW12_HIGH ;
 
     _x_last_noise = LIS2DW12_LOW_NOISE_DISABLE;
 
@@ -161,7 +161,7 @@ int LIS2DW12Sensor::enable_x(void)
     if (set_x_odr_when_enabled(_x_last_odr, _x_last_operating_mode, _x_last_noise) == 1) {
         return 1;
     }
-		printf("last_odr: %3.3f, last_om: %d,  last_noise:  %d\r\n", _x_last_odr, _x_last_operating_mode, _x_last_noise); 
+		printf("\r\nlast_odr: %3.3f, last_om: %d,  last_noise:  %d\r\n\r\n", _x_last_odr, _x_last_operating_mode, _x_last_noise); 
     _x_is_enabled = 1;
 
     return 0;
