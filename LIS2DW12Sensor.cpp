@@ -40,7 +40,8 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include "LIS2DW12Sensor.h"
-
+#include "mbed-trace/mbed_trace.h"
+#define TRACE_GROUP "ACCEL"
 
 /* Class Implementation ------------------------------------------------------*/
 
@@ -101,10 +102,20 @@ LIS2DW12Sensor::LIS2DW12Sensor(SPI *spi, PinName cs_pin, PinName int1_pin, PinNa
  * @param[in] init pointer to device specific initalization structure.
  * @retval    "0" in case of success, an error code otherwise.
  */
+/*
+		ODR		POWER_MODE													LOW_NOISE			WAKE-UP		ODR			ACTIVE_CURRENT_uA		INACTIVE_CURRENT_uA		COMMENTS
+		12.5	LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4		1							0					12.50		8.60								0.09									Continuous Mode
+		12.5	LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4		1							1					12.50		8.80								0.10									Continuous Mode
+		100		LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4		1							0					100.00	53.00								0.09									Continuous Mode
+		100		LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4		1							1					100.00	53.00								0.09									Continuous Mode
+		100		LIS2DW12_HIGH_PERFORMANCE						1							0					12.50		155.00							0.09									Continuous Mode
+		100		LIS2DW12_HIGH_PERFORMANCE						1							1					12.50		155.00							0.09									Continuous Mode
+		100		LIS2DW12_HIGH_PERFORMANCE						1							0					100.00	155.00							0.09									Continuous Mode
+		100		LIS2DW12_HIGH_PERFORMANCE						1							1					100.00	155.00							0.09									Continuous Mode
+*/
 int LIS2DW12Sensor::init(void *init)
 {
-    /* Enable register address automatically incremented during a multiple byte
-    access with a serial interface. */
+    /* Enable register address automatically incremented during a multiple byte access with a serial interface. */
     if (lis2dw12_auto_increment_set(&_reg_ctx, PROPERTY_ENABLE) != 0) {
         return 1;
     }
@@ -119,27 +130,32 @@ int LIS2DW12Sensor::init(void *init)
         return 1;
     }
 
-    /* Power mode selection */
-    if (lis2dw12_power_mode_set(&_reg_ctx, LIS2DW12_HIGH_PERFORMANCE) != 0) {
-        return 1;
-    }
-
-    /* Output data rate selection - power down. */
-    if (lis2dw12_data_rate_set(&_reg_ctx, LIS2DW12_XL_ODR_100Hz) != 0) {
-        return 1;
-    }
-
     /* Full scale selection. */
     if (lis2dw12_full_scale_set(&_reg_ctx, LIS2DW12_16g) != 0) {
         return 1;
     }
 
+    /* Power mode selection */
+		//if (lis2dw12_power_mode_set(&_reg_ctx, LIS2DW12_HIGH_PERFORMANCE_LOW_NOISE) != 0) {
+    if (lis2dw12_power_mode_set(&_reg_ctx, LIS2DW12_CONT_LOW_PWR_LOW_NOISE_4) != 0) {
+				return 1;
+		}
+
+    /* Output data rate selection - power down. */
+    if (lis2dw12_data_rate_set(&_reg_ctx, LIS2DW12_XL_ODR_100Hz) != 0) {
+    //if (lis2dw12_data_rate_set(&_reg_ctx, LIS2DW12_XL_ODR_100Hz) != 0) {
+        return 1;
+    }
+		
+		if (enable_wake_up_detection() != 0) {
+			//return 1;
+		}
+
     /* Select default output data rate. */
     _x_last_odr = 100.0f;
-
-    _x_last_operating_mode = LIS2DW12_HIGH_PERFORMANCE_MODE;
-
-    _x_last_noise = LIS2DW12_LOW_NOISE_DISABLE;
+    _x_last_operating_mode = LIS2DW12_LOW_POWER_MODE4;
+    //_x_last_operating_mode = LIS2DW12_HIGH_PERFORMANCE_MODE;
+    _x_last_noise = LIS2DW12_LOW_NOISE_ENABLE;
 
     _x_is_enabled = 0;
 
@@ -161,9 +177,9 @@ int LIS2DW12Sensor::enable_x(void)
     if (set_x_odr_when_enabled(_x_last_odr, _x_last_operating_mode, _x_last_noise) == 1) {
         return 1;
     }
-		printf("*********************************************************last_odr: %3.3f, last_om: %d,  last_noise:  %d\r\n", _x_last_odr, _x_last_operating_mode, _x_last_noise); 
+		tr_info("last_odr: %3.3f, last_om: %d,  last_noise:  %d\r\n", _x_last_odr, _x_last_operating_mode, _x_last_noise); 
     _x_is_enabled = 1;
-
+		tr_info("Accel enabled\r\n");
     return 0;
 }
 
@@ -182,9 +198,8 @@ int LIS2DW12Sensor::disable_x(void)
     if (lis2dw12_data_rate_set(&_reg_ctx, LIS2DW12_XL_ODR_OFF) != 0) {
         return 1;
     }
-
     _x_is_enabled = 0;
-
+		tr_info("Accel disabled\r\n");
     return 0;
 }
 
@@ -838,12 +853,12 @@ int LIS2DW12Sensor::enable_wake_up_detection(void)
     lis2dw12_ctrl4_int1_pad_ctrl_t val;
 
     /* Output Data Rate selection */
-    if (set_x_odr(200.0f) != 0) {
+    if (set_x_odr(100.0f) != 0) {
         return 1;
     }
 
     /* Full scale selection */
-    if (set_x_fs(2) != 0) {
+    if (set_x_fs(16) != 0) {
         return 1;
     }
 
