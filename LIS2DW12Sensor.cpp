@@ -1457,3 +1457,7 @@ float_t LIS2DW12Sensor::get_celsius(void) {
 	return(mCelsius);
 }
 
+int LIS2DW12Sensor::get_wake_source(lis2dw12_all_sources_t *val) {
+return(lis2dw12_all_sources_get(&_reg_ctx, val));
+
+}

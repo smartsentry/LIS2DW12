@@ -129,6 +129,7 @@ public:
     int set_fifo_mode(uint8_t mode);
     int read_reg(uint8_t reg, uint8_t *data);
     int write_reg(uint8_t reg, uint8_t data);
+    int get_wake_source(lis2dw12_all_sources_t *val);
 
 		/*  FUNCTIONS ADDED BY MG  */
 		float_t from_raw_to_celsius(uint8_t * lsb);
