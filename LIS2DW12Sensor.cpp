@@ -1440,7 +1440,7 @@ int32_t LIS2DW12_io_read(void *handle, uint8_t ReadAddr, uint8_t *pBuffer, uint1
 float_t LIS2DW12Sensor::from_raw_to_celsius(uint8_t * val)
 {
 	int16_t temp = ( ( (val[1] << 8) + val[0] ) );
-	float ftemp = (( (float_t)temp / 256.0f) + 25.0f  );
+	float ftemp = (( (float_t)temp / 16.0f) + 25.0f  );
 	return(ftemp);
 }
 
